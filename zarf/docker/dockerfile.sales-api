@@ -1,0 +1,31 @@
+# Build the Go Binary.
+FROM golang:1.18.1-alpine AS build_sales-api
+ENV CGO_ENABLED 0
+ARG BUILD_REF
+
+WORKDIR /service/app/services/sales-api
+COPY . .
+
+# Build the service binary.
+RUN go build -ldflags="-X 'main.build=${BUILD_REF}'"
+
+
+# Run the Go Binary in Alpine.
+FROM alpine:3.15
+ARG BUILD_DATE
+ARG BUILD_REF
+
+RUN addgroup -g 1000 -S sales && \
+    adduser -u 1000 -h /service -G sales -S sales
+
+COPY --from=build_sales-api --chown=sales:sales /service/app/services/sales-api/sales-api /service/sales-api
+WORKDIR /service
+USER sales
+CMD ["./sales-api"]
+
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.title="sales-api" \
+      org.opencontainers.image.author="Jesus Estevez <fco.estevez@outlook.com>" \
+      org.opencontainers.image.source="https://github.com/ingestevezaquino/sales-api" \
+      org.opencontainers.image.revision="${BUILD_REF}" \
+      org.opencontainers.image.vendor="ingestevezaquino"
