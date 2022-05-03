@@ -3,10 +3,11 @@ FROM golang:1.18 AS build_sales-api
 ENV CGO_ENABLED 0
 ARG BUILD_REF
 
-WORKDIR /service/app/services/sales-api
-COPY . .
+# Copy the source code into the container
+COPY . /service
 
 # Build the service binary.
+WORKDIR /service/app/services/sales-api
 RUN go build -ldflags="-X 'main.build=${BUILD_REF}'"
 
 
