@@ -3,15 +3,16 @@ pipeline {
   environment {
     // Determines which env both apps will be compiled for.
     BUILD_ENV='prod' // CHOOSE FROM: 'dev', 'stg', 'prod'.
-    
-    APP_NAME_FRONTEND='helloworld'
-    APP_NAME_BACKEND='helloworld-api'
-
-    // Adjusts which port is the API URL gonna use.
-    API_URL='http://localhost:8081/api'
   }
   stages {
-
+    stage('Clone Git Repo | Backend') {
+      steps {
+        dir('src/backend') {
+          checkout([$class: 'GitSCM', branches: [[name: '*/main']],
+          userRemoteConfigs: [[url: 'https://github.com/ingestevezaquino/sales-api.git']]])
+        }
+      }
+    }
     /////////////////////////////////////////////////////
     // BACK END
     /////////////////////////////////////////////////////
